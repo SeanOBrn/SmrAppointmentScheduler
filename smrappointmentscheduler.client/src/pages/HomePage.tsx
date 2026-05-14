@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { getMechanics, getMechanicAppointments, getAppointment } from '../api/api';
 import type { MechanicDto, AppointmentDetailDto } from '../types/api';
@@ -17,21 +18,29 @@ export default function HomePage() {
     setError(null);
     try {
 
-      const mechanics: any[] = await getMechanics();
+      const mechanics = await getMechanics() as MechanicDto[];
 
       const results = await Promise.all(mechanics.map(async (m) => {
-        const basic = await getMechanicAppointments(m.id);
+        const basic = await getMechanicAppointments(m.id) as { appointmentId: number }[];
         // fetch full details for each appointment
-        const details = await Promise.all(basic.map((a: any) => getAppointment(a.appointmentId).catch(() => null)));
-        const filtered = details.filter((d: any) => d !== null) as any[];
+        const details = await Promise.all(basic.map(async (a) => {
+          try {
+            const d = await getAppointment(a.appointmentId);
+            return d as AppointmentDetailDto;
+          } catch {
+            return null;
+          }
+        }));
+
+        const filtered = details.filter((d): d is AppointmentDetailDto => d !== null);
         return { mechanic: m, appointments: filtered } as MechanicGroup;
       }));
 
       // sort appointments within group by start
       results.forEach(g => g.appointments.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()));
 
-      // defer setState to avoid set-state-in-effect lint
-      Promise.resolve().then(() => setGroups(results.filter((g: any) => g.appointments.length > 0)));
+      // update state once after all awaits complete
+      setGroups(results.filter(g => g.appointments.length > 0));
     } catch (err) {
       const e = err as Error;
       setError(e?.message || 'Failed to load appointments');

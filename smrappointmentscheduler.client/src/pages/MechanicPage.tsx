@@ -11,16 +11,12 @@ export default function MechanicPage() {
   const [newNote, setNewNote] = useState('');
   const [statusUpdating, setStatusUpdating] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const data = await getMechanics();
-      if (!mounted) return;
-      // defer setState to avoid set-state-in-effect lint
-      Promise.resolve().then(() => { setMechanics(data); if (data.length>0) setSelectedMechanicId(data[0].id); });
-    })();
-    return () => { mounted = false; };
+    // call the shared loader defined below
+    void loadMechanics();
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (selectedMechanicId !== null) {
@@ -37,7 +33,7 @@ export default function MechanicPage() {
   }, [selectedAppointmentId]);
 
   async function loadMechanics() {
-    const data = await getMechanics();
+    const data = await getMechanics() as any[];
     setMechanics(data);
     if (data.length > 0) setSelectedMechanicId(data[0].id);
   }

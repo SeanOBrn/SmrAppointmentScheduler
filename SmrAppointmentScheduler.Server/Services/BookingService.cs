@@ -41,12 +41,12 @@ public class BookingService : IBookingService
         // Validate branch and service type
         if (slot.BranchId != request.BranchId)
         {
-            throw new SmrAppointmentScheduler.Server.Common.Exceptions.InvalidOperationException("Appointment slot does not belong to the requested branch.");
+            throw new InvalidOperationException("Appointment slot does not belong to the requested branch.");
         }
 
         if (slot.ServiceTypeId != request.ServiceTypeId)
         {
-            throw new SmrAppointmentScheduler.Server.Common.Exceptions.InvalidOperationException("Appointment slot does not match the requested service type.");
+            throw new InvalidOperationException("Appointment slot does not match the requested service type.");
         }
 
         // Create appointment
