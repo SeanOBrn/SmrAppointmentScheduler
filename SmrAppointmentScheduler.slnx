@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="smrappointmentscheduler.client/smrappointmentscheduler.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="SmrAppointmentScheduler.Server/SmrAppointmentScheduler.Server.csproj" />
+</Solution>
